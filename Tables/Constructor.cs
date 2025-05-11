@@ -1,95 +1,121 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Tables;
 
-namespace Tables
+class Constructor : IRow, IColumns
 {
-     class Constructor : IRow, IColumns
+    const char ANGLE = '+';
+    const char LINE_SIMBOL = '-';
+    readonly int[] columnWidths;
+    readonly string[] columnTitles;
+    readonly string[][] columnDataRows; // Теперь храним массив строк данных
+
+    public Constructor(Table table)
     {
-       const char ANGLE = '+';
-       const  char LINE_SIMBOL = '-';
-       readonly int[] columnWidths; // Получаем из другого класса или метода 
-       readonly string[] columnTitles;
-       readonly string[] columnData;
+        columnTitles = table.Titles;
+        var inputData = table.Data;
 
-        public Constructor()
+        // Разбиваем данные на строки таблицы
+        columnDataRows = OrganizeDataIntoRows(columnTitles, inputData);
+
+        // Рассчитываем ширину колонок
+        columnWidths = CalculateColumnWidths(columnTitles, columnDataRows);
+    }
+
+    private string[][] OrganizeDataIntoRows(string[] titles, string[] inputData)
+    {
+        var result = new List<string[]>();
+        int titlesCount = titles.Length;
+
+        // Разбиваем данные на строки по titlesCount элементов
+        for (int i = 0; i < inputData.Length; i += titlesCount)
         {
-            columnTitles = new Table().GetTitles();
-            columnData = new Table().GetData();
-            // Выравниваем количество данных по заголовкам
-            columnData = AlignDataToTitles(columnTitles, columnData);
-            columnWidths = new int[columnTitles.Length];
-            // Рассчитываем ширину каждой колонки (максимум из заголовка и данных)
-            for (int i = 0; i < columnTitles.Length; i++)
+            var rowData = inputData
+                .Skip(i)
+                .Take(titlesCount)
+                .ToArray();
+
+            // Дополняем последнюю строку пустыми значениями если нужно
+            if (rowData.Length < titlesCount)
             {
-                columnWidths[i] = Math.Max(
-                    columnTitles[i].Length,
-                    columnData[i].Length
-                );
+                rowData = rowData
+                    .Concat(Enumerable.Repeat(string.Empty, titlesCount - rowData.Length))
+                    .ToArray();
             }
+
+            result.Add(rowData);
         }
-        private string[] AlignDataToTitles(string[] titles, string[] data)
+
+        // Если нет данных вообще, добавляем одну пустую строку
+        if (result.Count == 0)
         {
-            // Если данных меньше чем заголовков - дополняем пустыми строками
-            if (data.Length < titles.Length)
+            result.Add(Enumerable.Repeat(string.Empty, titlesCount).ToArray());
+        }
+
+        return result.ToArray();
+    }
+
+    private int[] CalculateColumnWidths(string[] titles, string[][] dataRows)
+    {
+        var widths = new int[titles.Length];
+
+        // Инициализируем ширинами заголовков
+        for (int i = 0; i < titles.Length; i++)
+        {
+            widths[i] = titles[i].Length;
+        }
+
+        // Обновляем, если данные шире
+        foreach (var row in dataRows)
+        {
+            for (int i = 0; i < row.Length; i++)
             {
-                var alignedData = new List<string>(data);
-                while (alignedData.Count < titles.Length)
+                if (row[i].Length > widths[i])
                 {
-                    alignedData.Add(string.Empty);
+                    widths[i] = row[i].Length;
                 }
-                return alignedData.ToArray();
             }
-            // Если данных больше - обрезаем
-            return data.Take(titles.Length).ToArray();
         }
 
-        // Печать колонок
-         void PrintColumns()
-        {
-            Console.Write('|');
-            for (int i = 0; i < columnWidths.Length; i++)
-            {
-                
-                Console.Write(columnTitles[i].PadRight(columnWidths[i]));// Выравниваем заголовок по ширине колонки
-                Console.Write('|');
-            }
-            Console.WriteLine();
+        return widths;
+    }
 
-            Console.Write('|');
-            for (int i = 0; i < columnWidths.Length; i++)
-            {
-                
-                Console.Write(columnData[i].PadRight(columnWidths[i]));// Выравниваем данные по ширине колонки
-                Console.Write('|');
-            }
-            Console.WriteLine();
+    public void PrintColumns()
+    {
+        // Печать заголовков
+        PrintRowData(columnTitles);
+
+        // Печать всех строк данных
+        foreach (var row in columnDataRows)
+        {
+            PrintRowData(row);
         }
+    }
 
-        //Печать вехней и нижней линии
-        void PrintRow()
+    private void PrintRowData(string[] row)
+    {
+        Console.Write('|');
+        for (int i = 0; i < columnWidths.Length; i++)
         {
+            Console.Write((i < row.Length ? row[i] : "").PadRight(columnWidths[i]));
+            Console.Write('|');
+        }
+        Console.WriteLine();
+    }
+
+    public void PrintRow()
+    {
+        Console.Write(ANGLE);
+        for (int i = 0; i < columnWidths.Length; i++)
+        {
+            Console.Write(new string(LINE_SIMBOL, columnWidths[i]));
             Console.Write(ANGLE);
-
-            for (int i = 0; i < columnWidths.Length; i++)
-            {
-                Console.Write(new string(LINE_SIMBOL, columnWidths[i]));
-                Console.Write(ANGLE);
-            }
-
-            Console.WriteLine();
         }
+        Console.WriteLine();
+    }
 
-        // Печать всей таблицы
-        public void PrintTable()
-        {
-            PrintRow();
-            PrintColumns();
-            PrintRow();
-        }     
+    public void PrintTable()
+    {
+        PrintRow();
+        PrintColumns();
+        PrintRow();
     }
 }

@@ -4,10 +4,10 @@
     {
         static void Main(string[] args)
         {
-            
-           Constructor constructor = new Constructor();
+            Table newTable = new Table();
+            Constructor constructor = new Constructor(newTable);
             constructor.PrintTable();
-            constructor.
+            
         }
 
      

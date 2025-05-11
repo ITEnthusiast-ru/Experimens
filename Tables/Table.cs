@@ -8,51 +8,57 @@ namespace Tables
 {
      class Table
     {
-        string[] titleStrings = GetTitles();
-         public string[] GetTitles()
-        {
-            List<string> titles = new List<string>();
-            int count = 1;
+        private string[] titles;
 
-            while (true)
+        public string[] Titles
+        {       
+            get
             {
-                Console.WriteLine($"Введите заголовок {count} (оставьте пустым для завершения):");
-                string? title = Console.ReadLine();
+                List<string> titles = new List<string>();
+                int count = 1;
 
-                if (string.IsNullOrEmpty(title))
-                    break;
-
-                titles.Add(title);
-                count++;
-            }
-
-            return titles.ToArray();
-        }
-         public string[] GetData()
-        {
-            List<string> allData = new List<string>();
-            int count = 1;
-
-            while (true)
-            {
-                Console.WriteLine($"Введите данные {count} колнки (оставьте пустым для завершения):");
-                string? data = Console.ReadLine();
-
-                if (string.IsNullOrEmpty(data))
-                    break;
-
-                allData.Add(data);
-                count++;
-            }
-            if (titleStrings.Length != allData.Count)
-            {
-                for (int i = 0; i < allData.Count; i++)
+                while (true)
                 {
-                    allData.Add(string.Empty);
+                    Console.WriteLine($"Введите заголовок {count} (оставьте пустым для завершения):");
+                    string? title = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(title))
+                        break;
+
+                    titles.Add(title);
+                    count++;
                 }
 
+                return titles.ToArray();
             }
-            return allData.ToArray();
+            set { titles = value; }
         }
+
+        private string[] data;
+
+        public string[] Data
+        {
+            get {
+                List<string> allData = new List<string>();
+                int count = 1;
+
+                while (true)
+                {
+                    Console.WriteLine($"Введите данные {count} колнки (оставьте пустым для завершения):");
+                    string? data = Console.ReadLine();
+
+                    if (string.IsNullOrEmpty(data))
+                        break;
+
+                    allData.Add(data);
+                    count++;
+                }
+
+                return allData.ToArray();
+            }
+            set { data = value; }
+        }
+
+       
     }
 }
