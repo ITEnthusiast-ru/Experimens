@@ -31,7 +31,7 @@ namespace Tables
 
                 return titles.ToArray();
             }
-            set { titles = value; }
+          private  set { titles = value; }
         }
 
         private string[] data;
@@ -56,7 +56,7 @@ namespace Tables
 
                 return allData.ToArray();
             }
-            set { data = value; }
+           private set { data = value; }
         }
 
        

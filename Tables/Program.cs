@@ -7,7 +7,6 @@
             Table newTable = new Table();
             Constructor constructor = new Constructor(newTable);
             constructor.PrintTable();
-            
         }
 
      
